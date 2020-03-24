@@ -1,0 +1,165 @@
+<div class="page-header">
+    <h1 class="pull-left">Ведение стелажей</h1>
+    <ul class="list-unstyled spaced list-inline pull-right no-margin-bottom">
+        <li class="no-margin">
+            <div class="action-buttons">
+                <a class="green" href="javascript:void(0);">
+                    <i class="ace-icon fa fa-circle-o bigger-130"></i>
+                </a>
+                Изменить активность
+            </div>
+        </li>
+        <li class="no-margin">
+            <div class="action-buttons">
+                <a class="red" href="javascript:void(0);">
+                    <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                </a>
+                Удаление категории
+            </div>
+        </li>
+    </ul>
+    <div class="clearfix"></div>
+</div>
+<div class="clearfix"></div>
+<div class="hr hr-10 dotted hr-double"></div>
+
+<input type="hidden" id="stack_id" name="stack_id">
+<div class="col-lg-6" style="float:left;" >
+    <div class="table-responsive loading-widget" id="list">
+        <!--Category table-->
+    </div>
+</div>
+<div class="col-lg-6">
+    <div class="table-responsive loading-widget" id="list1">
+        <!--Category table-->
+    </div>
+</div>
+
+<div id="modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    Редактирование стеллажа
+                </div>
+            </div>
+            <div id="modal_body"></div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<script>
+    $(document).ready(function() {
+        categoryListForm(0);
+        stackListForm();
+    });
+
+    function categoryListForm(stack_id) {
+        $.ajax({
+            type: 'POST',
+            url: "/dict/category-list-table/stack_id/"+ stack_id +"/",
+            success: function(data){
+                $('#list1').html(data);
+            }
+        });
+    }
+
+    function stackListForm() {
+        $.ajax({
+            type: 'POST',
+            url: "/dict/stack-list-table/",
+            success: function(data){
+                $('#list').html(data);
+            }
+        });
+    }
+
+    function showCat(id, ob){
+        $('#reload_type').attr('value', 'list1');
+        $('#stack tbody tr').removeClass('selected-td');
+        $(ob).closest('tr').addClass('selected-td');
+        $('#stack_id').val(id);
+        $("#list1").load("/dict/category-list-table/stack_id/"+id+"/");
+    }
+
+    function startReload() {
+        if($('#reload_type').val() == 'all'){
+            $('.loading-widget').widget_box('reload');
+            $('#reload_type').attr('value', '');
+        }else if($('#reload_type').val() == 'list1'){
+            $('#list1').widget_box('reload');
+            $('#reload_type').attr('value', '');
+        }
+    }
+
+    function stopReload() {
+        $('.loading-widget').find('.widget-box-overlay').remove();
+        $('.loading-widget').removeClass('position-relative');
+    }
+
+    function stackCategoryUpd(category_id, ob){
+        var stack_id = $("#stack_id").val();
+        $.ajax({
+            type: 'POST',
+            url: "/dict/stack-list/mode/category-stack-link/stack_id/" + stack_id + "/category_id/" + category_id + "/",
+            success: function(data){
+                if(data.result['status'] == false){
+                    Notify.generate('Ошибка', '', 3);
+                }
+                else{
+                    if(data.result['value'] == 1){
+                        Notify.generate('Успех', '', 1);
+                        $(ob).closest("tr").removeClass('selected-td');
+                    }else{
+                        Notify.generate('Успех', '', 1);
+                        $(ob).closest("tr").addClass('selected-td');
+                    }
+                }
+            }
+        });
+    }
+
+    $(document).ajaxStart(function() {
+        startReload();
+    });
+
+    $(document).ajaxStop(function() {
+        stopReload();
+    });
+
+
+    function delStack(stack_id, ob){
+        if (!confirm("Вы действительно хотите удалить?")) {
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: "/dict/stack-list/mode/del-stack/stack_id/" + stack_id + "/",
+            success: function(data){
+                if(data.result['status'] == false){
+                    Notify.generate('Ошибка', '', 3);
+                }
+                else{
+                    Notify.generate('Стеллаж удалён', '', 1);
+                    $(ob).closest("tr").remove();
+                }
+            }
+        });
+    }
+
+    function showModal(stack_id){
+        $("#modal_body").empty();
+        $.ajax({
+            type: 'POST',
+            url: "/dict/stack-edit/stack_id/" + stack_id + "/",
+            async: true,
+            success: function(data){
+                $("#modal_body").html(data);
+            }
+        });
+        $(".modal").modal('show');
+    }
+</script>
