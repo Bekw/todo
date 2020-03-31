@@ -45,7 +45,22 @@ class DictController extends ParentController{
     public function indexJsonAction(){
         $mode = $this->_getParam('mode', '');
         $this->view->mode = $mode;
-
+        $ob = new Application_Model_DbTable_Dict();
+        if($mode == 'upd-request'){
+            $a = $this->_getAllParams();
+            $result = $ob->request_upd($a);
+            $this->view->result = $result;
+        }
+        if($mode == 'change-request-courier'){
+            $a = $this->_getAllParams();
+            $result = $ob->request_courier_change($a['request_id'], $a['user_id']);
+            $this->view->result = $result;
+        }
+        if($mode == 'change-request-status'){
+            $a = $this->_getAllParams();
+            $result = $ob->request_status_change($a['request_id'], $a['status_id']);
+            $this->view->result = $result;
+        }
     }
 
     public function categoryListAction(){
@@ -208,8 +223,32 @@ class DictController extends ParentController{
             $result = $ob->product_count_add($a['product_id'], $a['amount']);
             $this->view->result = $result;
         }
+        if($mode == 'upd-stack'){
+            $this->_helper->AjaxContext()->addActionContext('product-list', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->product_stack_upd($a);
+            $this->view->result = $result;
+        }
+        if($mode == 'delete-stack'){
+            $this->_helper->AjaxContext()->addActionContext('product-list', 'json')->initContext('json');
+            $product_stack_id = $this->_getParam('product_stack_id', 0);
+            $result = $ob->product_stack_del($product_stack_id);
+            $this->view->result = $result;
+        }
         $row = $ob->product_read()['value'];
+        $this->view->category_list = $ob->category_read_for_select()['value'];
+        $this->view->brand_list = $ob->brand_read_for_select()['value'];
+        $this->view->product_type_list = $ob->product_type_read_for_select()['value'];
         $this->view->row = $row;
+    }
+    public function productListFormAction(){
+        $this->_helper->layout->disableLayout();
+        $ob = new Application_Model_DbTable_Dict();
+        $category_id = $this->view->category_id = $this->_getParam('category_id', 0);
+        $brand_id = $this->view->brand_id = $this->_getParam('brand_id', 0);
+        $product_type_id = $this->view->product_type_id = $this->_getParam('product_type_id', 0);
+        $result  = $ob->product_read();
+        $this->view->row = $result['value'];
     }
     public function productEditAction(){
         $ob = new Application_Model_DbTable_Dict();
@@ -220,7 +259,7 @@ class DictController extends ParentController{
             $arr = $this->_getAllParams();
             $result = $ob->product_upd($arr);
             if($result['status'] == true){
-                $this->_redirect('/dict/product-list');
+                $this->_redirect('/dict/product-list/');
             }else{
                 $this->view->error = $result['error'];
             }
@@ -230,12 +269,178 @@ class DictController extends ParentController{
         $this->view->category_list = $ob->category_read_for_select()['value'];
         $this->view->brand_list = $ob->brand_read_for_select()['value'];
         $this->view->product_type_list = $ob->product_type_read_for_select()['value'];
+        $this->view->product_stack_list = $ob->product_stack_read($product_id)['value'];
+        $this->view->stack_list = $ob->stack_for_select_read($row['category_id'])['value'];
     }
     public function productCntEditAction(){
         $ob = new Application_Model_DbTable_Dict();
         $this->_helper->layout->disableLayout();
         $product_id = $this->_getParam('product_id', 0);
         $this->view->product_id = $product_id;
+    }
+    public function lotListAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $mode = $this->_getParam('mode', '');
+        $this->view->date_begin = $this->_getParam('date_begin', '');
+        $date_begin = $this->view->date_begin;
+        $this->view->date_end = $this->_getParam('date_end', '');
+        $date_end = $this->view->date_end;
+        $this->view->product_name = $this->_getParam('product_name', '');
+        $product_name = $this->view->product_name;
+        if($mode == 'delete'){
+            $this->_helper->AjaxContext()->addActionContext('lot-list', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->lot_del($a['lot_id']);
+            $this->view->result = $result;
+        }
+        $row = $ob->lot_read($date_begin, $date_end, $product_name)['value'];
+        $this->view->row = $row;
+
+        $page = $this->_getParam('page',1);
+        $paginator = Zend_Paginator::factory($row);
+        $paginator->setItemCountPerPage(30);
+        $paginator->setCurrentPageNumber($page);
+        $this->view->paginator = $paginator;
+    }
+    public function lotEditAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $lot_id = $this->_getParam('lot_id', 0);
+        $this->view->lot_id = $lot_id;
+
+        $mode = $this->_getParam('mode', '');
+        if($mode == 'get-products'){
+            $this->_helper->AjaxContext()->addActionContext('lot-edit', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->product_for_select_get($a['product_name'])['value'];
+            $this->view->product_list = $result;
+        }
+        if($this->getRequest()->isPost()){
+            $arr = $this->_getAllParams();
+            $result = $ob->lot_upd($arr);
+            if($result['status'] == true){
+                $this->_redirect('/dict/lot-list');
+            }else{
+                $this->view->error = $result['error'];
+                $this->view->row = $arr;
+            }
+        }
+        $this->view->row = $ob->lot_get($lot_id)['value'];
+    }
+    public function requestListAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $this->view->status_id = $this->_getParam('status_id', 0);
+        $status_id = $this->view->status_id;
+        $this->view->date_begin = $this->_getParam('date_begin', '');
+        $date_begin = $this->view->date_begin;
+        $this->view->date_end = $this->_getParam('date_end', '');
+        $date_end = $this->view->date_end;
+        $this->view->address = $this->_getParam('address', '');
+        $address = $this->view->address;
+        $telephone = $this->_getParam('telephone', '');
+        $this->view->telephone = $telephone;
+        $mode = $this->_getParam('mode', '');
+        if($mode == 'upd-request'){
+            $this->_helper->AjaxContext()->addActionContext('request-edit', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->request_upd($a);
+            $this->view->result = $result;
+        }
+        if($mode == 'appendix1'){
+            $row = $ob->request_read($status_id, $date_begin, $date_end, $address, $this->view->telephone);
+            $row_req = $row['value'];
+            $status_name = '';
+            if($status_id == 1){
+                $status_name = 'Отправлено';
+            }
+            if($status_id == 3){
+                $status_name = 'Доставлено';
+            }
+            try{
+                require 'phpword/vendor/autoload.php';
+                $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('appendix1.docx');
+                $templateProcessor->cloneRow('address', count($row_req));
+                $cnt = 0;
+                $ob_sum = 0;
+
+
+                $templateProcessor->setValue('date', date('d/m/Y'));
+                foreach ($row_req as $req){
+                    $cnt++;
+                    $cnt1 = 0;
+                    $templateProcessor->setValue('address#'.$cnt, $req['address']);
+                    $templateProcessor->setValue('telephone#'.$cnt, $req['telephone']);
+                    $templateProcessor->setValue('comment_contact#'.$cnt, $req['comment']);
+
+                    $items = $ob->request_product_read_for_upload($req['request_id'])['value'];
+                    $item = implode('<w:br/>', array_map(function ($entry) {
+                        $entry['product_name'] = htmlspecialchars($entry['product_name']);
+                        return implode(',',$entry);
+                    }, $items));
+                    $templateProcessor->setValue('item#'.$cnt, $item);
+
+                    $templateProcessor->setValue('sum#'.$cnt, tenge_text($req['sum']));
+
+                    $ob_sum += $req['sum'];
+                }
+
+                $templateProcessor->setValue('ob_sum', tenge_text($ob_sum));
+
+                $dir = $_SERVER['DOCUMENT_ROOT']. '/log/reports';
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                $filename = 'Товары_'.$status_name. '.docx';
+                $templateProcessor->saveAs($filename);
+
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename='.$filename);
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($filename));
+                flush();
+                readfile($filename);
+                unlink($filename);
+                exit;
+            }catch (exception $e){
+                $result['value'] = null;
+                $result['error'] = _getErrorDebug($e, $e->getMessage());
+                $result['status'] = false;
+                echo var_dump($result['error']);
+            }
+        }
+        $result = $ob->request_read($this->view->status_id, $this->view->date_begin, $this->view->date_end, $this->view->address, $this->view->telephone)['value'];
+        $this->view->row = $result;
+        $this->view->courier_list = $ob->courier_read()['value'];
+
+        $page = $this->_getParam('page',1);
+        $paginator = Zend_Paginator::factory($result);
+        $paginator->setItemCountPerPage(30);
+        $paginator->setCurrentPageNumber($page);
+        $this->view->paginator = $paginator;
+    }
+    public function requestEditAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $mode = $this->_getParam('mode', '');
+        if($mode == 'get-products'){
+            $this->_helper->AjaxContext()->addActionContext('request-edit', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->product_for_select_get($a['product_name'])['value'];
+            $this->view->product_list = $result;
+        }
+        if($mode == 'upd-request'){
+            $this->_helper->AjaxContext()->addActionContext('request-edit', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->request_upd($a);
+            $this->view->result = $result;
+        }
+        $this->view->request_id = $this->_getParam('request_id', 0);
+        $this->view->status_id = $this->_getParam('status_id', 1);
+        $this->view->courier_list = $ob->courier_read()['value'];
+        $this->view->row = $ob->request_get($this->view->request_id)['value'];
+
     }
 }
 

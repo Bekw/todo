@@ -1,0 +1,79 @@
+<?
+    $ob = new Application_Model_DbTable_Dict();
+    $product_list = $ob->request_product_read($this->request_id)['value'];
+    $i = 0;
+    $sum = 0;
+    $couriers = $ob->courier_read()['value'];
+?>
+<tr>
+    <td class="text-right"><?if($this->status_id == 1){?><a href="/dict/request-edit/request_id/<?=$this->request_id?>"><?=$this->request_id?></a><?}else{?><?=$this->request_id?><?}?></td>
+    <td class="text-left"><?=$this->address?></td>
+    <td class="text-left"><?=$this->telephone?></td>
+    <td class="text-center"><?=$this->request_date?></td>
+    <td class="text-left">
+        <?=$this->fio?>
+        <hr style="margin: 5px 0px; border: 1px solid black;">
+        <?=$this->comment?>
+    </td>
+    <td class="text-center">
+        <table class="table table-striped table-bordered table-hover product_table_list">
+            <?foreach ($product_list as $key1 => $product){
+                $i++;
+                $sum += $product['amount'] * $product['price'];
+                if ($i <= 3) {
+                    ?>
+                    <tr>
+                        <td style="width: 20px;"><?= $product['product_id'] ?></td>
+                        <td style="width: 200px;"><?= $product['product_name'] ?></td>
+                        <td style="width: 20px;"><?= $product['amount'] ?> шт.</td>
+                        <td style="width: 20px;"><?= $product['price'] ?> тг.</td>
+                    </tr>
+                    <?
+                }else{
+                    ?>
+                    <tr>
+                        <td class="hidden-product" style="width: 20px;"><?= $product['product_id'] ?></td>
+                        <td class="hidden-product" style="width: 200px;"><?= $product['product_name'] ?></td>
+                        <td class="hidden-product" style="width: 20px;"><?= $product['amount'] ?> шт.</td>
+                        <td class="hidden-product" style="width: 20px;"><?= $product['price'] ?> тг.</td>
+                    </tr>
+                    <?
+                }
+            }?>
+            <? if($i > 3){ ?>
+                <tr>
+                    <td style="padding: 0px; text-align: center;" colspan="4">
+                        <a class="tr-show-icon" style="cursor: pointer;">
+                            <i class="icon-chevron-down" onclick="showTr(this)"> Развернуть</i>
+                        </a>
+                        <a class="tr-hide-icon" style="display: none; cursor: pointer;">
+                            <i class="icon-chevron-up" onclick="showTr(this)"> Свернуть</i>
+                        </a>
+                    </td>
+                </tr>
+            <? } ?>
+        </table>
+    </td>
+    <td class="text-right">
+        <?
+        if(count($couriers) > 0){
+            foreach($couriers as $key2 => $courier_list){?>
+                <div style="margin-top: 5px;">
+                    <input type="button" class="btn btn-small <? if($this->courier_id == $courier_list['employee_id']){ echo " btn-success"; } ?> operation-classes" style="padding: 0px 10px; width: 100%;" onclick="setRequestCourier(<?=$this->request_id?>,<?=$courier_list['employee_id']?>,this)" value="<?=$courier_list['fio']?>" <? if($this->courier_id == $courier_list['employee_id']){ echo " disabled";}?>>
+                </div>
+                <?
+            }
+        }?>
+    </td>
+    <td class="text-center">
+        <div style="margin: 0px 0px 5px 0px;">
+            <input type="button" class="btn btn-small btn-primary btn-block operation-classes" style="padding: 0px 7px;" onclick="changeRequestStatus(<?=$this->request_id?>,1,this)" value="Отправлено" <? if($this->status_id == 1){ echo " disabled";}?>>
+        </div>
+        <div style="margin: 0px 0px 5px 0px;">
+            <input type="button" class="btn btn-small btn-warning btn-block operation-classes" style="padding: 0px 18px;" onclick="changeRequestStatus(<?=$this->request_id?>,2,this)" value="Отменено" <? if($this->status_id == 2){ echo " disabled";}?>>
+        </div>
+        <div style="margin-bottom: 5px;">
+            <input type="button" class="btn btn-small btn-success btn-block operation-classes" id="delivered" onclick="changeRequestStatus(<?=$this->request_id?>,3,this)" value="Доставлено" <? if($this->status_id == 3){ echo " disabled";}?>>
+        </div>
+    </td>
+</tr>
