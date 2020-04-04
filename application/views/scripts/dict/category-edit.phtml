@@ -30,6 +30,24 @@
             </div>
         </div>
         <div class="clearfix"></div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label" for="brand_id">Тип</label>
+                <div class="form-control no-padding">
+                    <select class="form-control" id="product_type_id" name="product_type_id">
+                        <option value="0">Выберите тип</option>
+                        <?
+                        if(count($this->type_list) > 0){
+                            foreach($this->type_list as $key => $value){?>
+                                <option value="<?=$value['product_type_id']?>" <?if($this->row['product_type_id'] == $value['product_type_id']){echo ' selected';}?>><?=$value['product_type_name']?></option>
+                                <?
+                            }
+                        }?>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
         <button type="submit" class="btn btn-sm btn-success">
             <i class="ace-icon fa fa-check"></i>
             Сохранить

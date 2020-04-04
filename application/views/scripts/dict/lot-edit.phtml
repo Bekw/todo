@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1 class="pull-left">Редактирование категории</h1>
+    <h1 class="pull-left">Редактирование лота</h1>
     <div class="clearfix"></div>
 </div>
 <div class="clearfix"></div>
@@ -10,7 +10,7 @@
             <div class="form-group">
                 <label class="control-label" for="new_product_add">Товар</label>
                 <input type="text" id="new_product_input" name="new_product_add" class="ui-autocomplete-input" autocomplete="off" value="<?=$this->row['product_name']?>" style="float: left; width: 424px;" onkeypress="checkProductSelected()" onkeyup="checkProductSelected()">
-                <input type="text" name="product_id" id="product_id" value="<?=$this->row['product_id']?>">
+                <input type="hidden" name="product_id" id="product_id" value="<?=$this->row['product_id']?>">
                 <div class="clearfix"></div>
             </div>
         </div>

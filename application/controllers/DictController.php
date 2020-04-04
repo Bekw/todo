@@ -94,6 +94,7 @@ class DictController extends ParentController{
         }
         $category_id = $this->_getParam('category_id', 0);
         $this->view->row = $ob->category_get($category_id)['value'];
+        $this->view->type_list = $ob->product_type_read_for_select()['value'];
     }
 
     public function productTypeListAction(){
@@ -235,11 +236,11 @@ class DictController extends ParentController{
             $result = $ob->product_stack_del($product_stack_id);
             $this->view->result = $result;
         }
-        $row = $ob->product_read()['value'];
+//        $row = $ob->product_read()['value'];
         $this->view->category_list = $ob->category_read_for_select()['value'];
         $this->view->brand_list = $ob->brand_read_for_select()['value'];
         $this->view->product_type_list = $ob->product_type_read_for_select()['value'];
-        $this->view->row = $row;
+//        $this->view->row = $row;
     }
     public function productListFormAction(){
         $this->_helper->layout->disableLayout();
@@ -247,7 +248,7 @@ class DictController extends ParentController{
         $category_id = $this->view->category_id = $this->_getParam('category_id', 0);
         $brand_id = $this->view->brand_id = $this->_getParam('brand_id', 0);
         $product_type_id = $this->view->product_type_id = $this->_getParam('product_type_id', 0);
-        $result  = $ob->product_read();
+        $result  = $ob->product_read($category_id, $product_type_id, $brand_id);
         $this->view->row = $result['value'];
     }
     public function productEditAction(){
@@ -287,13 +288,22 @@ class DictController extends ParentController{
         $date_end = $this->view->date_end;
         $this->view->product_name = $this->_getParam('product_name', '');
         $product_name = $this->view->product_name;
+        $this->view->is_active = $this->_getParam('is_active', '');
+        $is_active = $this->view->is_active;
+
         if($mode == 'delete'){
             $this->_helper->AjaxContext()->addActionContext('lot-list', 'json')->initContext('json');
             $a = $this->_getAllParams();
             $result = $ob->lot_del($a['lot_id']);
             $this->view->result = $result;
         }
-        $row = $ob->lot_read($date_begin, $date_end, $product_name)['value'];
+        if($mode == 'is-active'){
+            $this->_helper->AjaxContext()->addActionContext('lot-list', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->lot_is_active_upd($a['lot_id'], $a['is_active'], $a['amount'], $a['product_id']);
+            $this->view->result = $result;
+        }
+        $row = $ob->lot_read($date_begin, $date_end, $product_name, $is_active)['value'];
         $this->view->row = $row;
 
         $page = $this->_getParam('page',1);
@@ -436,11 +446,63 @@ class DictController extends ParentController{
             $result = $ob->request_upd($a);
             $this->view->result = $result;
         }
+        if($mode == 'delete-request-product'){
+            $this->_helper->AjaxContext()->addActionContext('request-edit', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->request_product_del($a['request_product_id'], $a['amount'], $a['product_id']);
+            $this->view->result = $result;
+        }
         $this->view->request_id = $this->_getParam('request_id', 0);
         $this->view->status_id = $this->_getParam('status_id', 1);
         $this->view->courier_list = $ob->courier_read()['value'];
         $this->view->row = $ob->request_get($this->view->request_id)['value'];
 
+    }
+    public function reportByDayAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $mode = $this->_getParam('mode', '');
+
+        $firstDayUTS = mktime (0, 0, 0, date("m"), 1, date("Y"));
+        $lastDayUTS = mktime (0, 0, 0, date("m"), date('t'), date("Y"));
+
+        $firstDay = date("d.m.Y", $firstDayUTS);
+        $lastDay = date("d.m.Y", $lastDayUTS);
+
+        $date_begin = $this->_getParam('date_begin', $firstDay);
+        $date_end = $this->_getParam('date_end', $lastDay);
+
+        $this->view->date_begin = $date_begin;
+        $this->view->date_end = $date_end;
+
+        if($mode == 'get-dayly-sale-sum'){
+            $this->_helper->AjaxContext()->addActionContext('report-by-day', 'json')->initContext('json');
+            $sum_by_days = $ob->report_for_product_by_day($date_begin, $date_end)['value'];
+            $this->view->result = $sum_by_days;
+        }
+    }
+    public function reportByProductAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $mode = $this->_getParam('mode', '');
+
+        $firstDayUTS = mktime (0, 0, 0, date("m"), 1, date("Y"));
+        $lastDayUTS = mktime (0, 0, 0, date("m"), date('t'), date("Y"));
+
+        $product_id = $this->_getParam('product_id', 0);
+        $firstDay = date("d.m.Y", $firstDayUTS);
+        $lastDay = date("d.m.Y", $lastDayUTS);
+
+        $date_begin = $this->_getParam('date_begin', $firstDay);
+        $date_end = $this->_getParam('date_end', $lastDay);
+
+        $this->view->date_begin = $date_begin;
+        $this->view->date_end = $date_end;
+        $this->view->product_id = $product_id;
+
+        if($mode == 'get-report-by-product'){
+            $this->_helper->AjaxContext()->addActionContext('report-by-product', 'json')->initContext('json');
+            $sum_by_days = $ob->report_by_product($product_id, $date_begin, $date_end);
+            $this->view->result = $sum_by_days;
+        }
     }
 }
 

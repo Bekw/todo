@@ -150,7 +150,7 @@
                                 </td>
                                 <td style="width: 150px;"><input type="text" value="<?=$request_product['price']?>" name="price[<?=$request_product['request_product_id']?>]" style="width: 100px;" class="product-price-value" onkeyup="checkToNum(this)"> тг.</td>
                                 <td style="width: 50px;">
-                                    <i class="fa fa-remove red" style="cursor: pointer" onclick="deleteProductFromRequest(<?=$request_product['request_product_id']?>,this)"></i>
+                                    <i class="fa fa-remove red" style="cursor: pointer" onclick="deleteProductFromRequest(<?=$request_product['request_product_id']?>,<?=$request_product['amount']?>, <?=$request_product['product_id']?>, this)"></i>
                                 </td>
                             </tr>
 
@@ -172,6 +172,9 @@
                     </div>
 
                     <div style="float: right;">
+                        <a href="/dict/request-list/status_id/1/">
+                            <input type="button" class="btn btn-danger" value="Назад">
+                        </a>
                         <input type="button" class="btn btn-primary" value="Сохранить" onclick="updRequest()">
                     </div>
                     <div class="clearfix"></div>
@@ -263,11 +266,11 @@
     function myTrim(x) {
         return x.replace(/^\s+|\s+$/gm,'');
     }
-    function deleteProductFromRequest(request_product_id,ob){
+    function deleteProductFromRequest(request_product_id, amount, product_id,  ob){
         if(request_product_id > 0){
             $.ajax({
                 type: 'POST',
-                url: "/dict/request-edit/mode/delete-request-product/request_product_id/"+request_product_id + "/",
+                url: "/dict/request-edit/mode/delete-request-product/request_product_id/"+request_product_id + "/amount/"+ amount +"/product_id/"+ product_id +"/",
                 success: function(data){
                     if(data.result == false){
                         Notify.generate("Ошибка", '', 3);

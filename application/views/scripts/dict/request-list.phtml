@@ -27,22 +27,22 @@
 <!--</div>-->
 <form id="form1">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6" style="">
-        <div class="col-lg-5 col-md-6 col-sm-6 col-xs-12">
-            <label class="control-label">По периоду</label>
-            <div class="clearfix"></div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-left: 0;">
-                <input class="form-control date-picker" type="text" name="date_begin" id="start_date" placeholder="С" data-date-format="dd/mm/yyyy" autocomplete="off" value="<?=$this->date_begin?>">
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-right: 0;">
-                <input class="form-control date-picker" type="text" name="date_end" id="end_date" placeholder="По" data-date-format="dd/mm/yyyy" autocomplete="off" value="<?=$this->date_end?>">
-            </div>
-        </div>
+			<div class="col-lg-5 col-md-6 col-sm-6 col-xs-12">
+				<label class="control-label">По периоду</label>
+				<div class="clearfix"></div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-left: 0;">
+					<input class="form-control date-picker" type="text" name="date_begin" id="start_date" placeholder="С" data-date-format="dd/mm/yyyy" autocomplete="off" value="<?=$this->date_begin?>">
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-right: 0;">
+					<input class="form-control date-picker" type="text" name="date_end" id="end_date" placeholder="По" data-date-format="dd/mm/yyyy" autocomplete="off" value="<?=$this->date_end?>">
+				</div>
+			</div>
         <div class="col-lg-3 col-md-6 col-sm-4 col-xs-12">
             <label class="control-label">Адрес</label>
             <div class="clearfix"></div>
             <input type="text" class="form-control" name="address" value="<?=$this->address?>" placeholder="Адрес"  autocomplete="off">
         </div>
-        <div class="col-lg-4 col-md-6 col-sm-4 col-xs-12">
+        <div class="col-lg-4 col-md-6 col-sm-4 col-xs-12" style="display: none">
             <label class="control-label">Ном.телефона</label>
             <div class="clearfix"></div>
             <input type="text" class="form-control" name="telephone" id="telephone" value="<?=$this->telephone?>" placeholder="Ном.телефона"  autocomplete="off">
@@ -83,6 +83,7 @@
             <th>Дата доставки</th>
             <th>Оператор/Комментарий</th>
             <th>Товары</th>
+            <th>Сумма</th>
             <th>Курьер</th>
             <th>Изменить статус</th>
         </tr>

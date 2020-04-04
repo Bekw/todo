@@ -7,6 +7,16 @@
     <td class="text-center"><?=$this->rowversion?></td>
     <td>
         <div class="text-center">
+            <a class="green" href="javascript:void(0);" onclick="is_active_upd(<?=$this->lot_id?>, <?=$this->is_active_lot?>, <?=$this->amount?>, <?=$this->product_id?>, this)">
+                <?if($this->is_active_lot == 1){?>
+                    <i class="ace-icon fa fa-circle-o bigger-130"></i>
+                <?}else{?>
+                    <i class="ace-icon fa fa-circle bigger-130"></i>
+                <?}?>
+            </a>
+        </div>
+    </td> <td>
+        <div class="text-center">
             <a class="red" href="javascript:void(0);" onclick="delLot(<?=$this->lot_id?>, this)">
                 <i class="ace-icon fa fa-trash-o bigger-130"></i>
             </a>

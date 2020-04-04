@@ -44,7 +44,8 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $p['category_name_'] = $arr['category_name'];
         $p['order_num_'] = $arr['order_num'];
         $p['category_code_'] = $arr['category_code'];
-        $result = $this->execSP(__FUNCTION__, "public.category_upd(:category_id_, :category_name_, :order_num_, :category_code_)", $p);
+        $p['product_type_id_'] = $arr['product_type_id'];
+        $result = $this->execSP(__FUNCTION__, "public.category_upd(:category_id_, :category_name_, :order_num_, :category_code_, :product_type_id_)", $p);
         return $result;
     }
     public function category_del($category_id){
@@ -144,8 +145,11 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $result = $this->execSP(__FUNCTION__, "public.stack_category_link(:stack_id_, :category_id_) res", $p, 'res');
         return $result;
     }
-    public function product_read(){
-        $result = $this->readSP(__FUNCTION__, "public.product_read('cur')");
+    public function product_read($category_id, $product_type_id, $brand_id){
+        $p['category_id'] = $category_id;
+        $p['product_type_id'] = $product_type_id;
+        $p['brand_id'] = $brand_id;
+        $result = $this->readSP(__FUNCTION__, "public.product_read('cur', :category_id, :product_type_id, :brand_id)", $p);
         return $result;
     }
     public function product_get($product_id){
@@ -220,11 +224,12 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $result = $this->execSP(__FUNCTION__, 'public.product_stack_del(:product_stack_id)', $p);
         return $result;
     }
-    public function lot_read($date_begin, $date_end, $product_name){
+    public function lot_read($date_begin, $date_end, $product_name, $is_active){
         $p['date_begin'] = zeroToNull($date_begin);
         $p['date_end'] = zeroToNull($date_end);
         $p['product_name'] = $product_name;
-        $result = $this->readSP(__FUNCTION__, "public.lot_read('cur', to_date(:date_begin, 'dd.mm.yyyy'), to_date(:date_end, 'dd.mm.yyyy'), :product_name)", $p);
+        $p['is_active'] = $is_active;
+        $result = $this->readSP(__FUNCTION__, "public.lot_read('cur', to_date(:date_begin, 'dd.mm.yyyy'), to_date(:date_end, 'dd.mm.yyyy'), :product_name, :is_active)", $p);
         return $result;
     }
     public function lot_get($lot_id){
@@ -329,4 +334,33 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $result = $this->execSP(__FUNCTION__, "public.request_status_change(:request_id, :status_id)", $p);
         return $result;
     }
+    public function lot_is_active_upd($lot_id, $is_active, $amount, $product_id){
+        $p['lot_id'] = $lot_id;
+        $p['is_active'] = $is_active;
+        $p['product_id'] = $product_id;
+        $p['amount'] = $amount;
+        $result = $this->execSP(__FUNCTION__, "public.lot_is_active_upd(:lot_id, :is_active, :product_id, :amount)", $p);
+        return $result;
+    }
+    public function request_product_del($request_product_id, $amount, $product_id){
+        $p['request_product_id'] = $request_product_id;
+        $p['amount'] = $amount;
+        $p['product_id'] = $product_id;
+        $result = $this->execSP(__FUNCTION__, "public.request_product_del(:request_product_id, :amount, :product_id)", $p);
+        return $result;
+    }
+    public function report_for_product_by_day($date_begin, $date_end){
+        $p['date_begin'] = $date_begin;
+        $p['date_end'] = $date_end;
+        $result = $this->readSP(__FUNCTION__, "public.report_for_product_by_day('cur', to_date(:date_begin, 'dd.mm.yyyy'), to_date(:date_end, 'dd.mm.yyyy'))", $p);
+        return $result;
+    }
+    public function report_by_product($product_id, $date_begin, $date_end){
+        $p['date_begin'] = $date_begin;
+        $p['date_end'] = $date_end;
+        $p['product_id'] = $product_id;
+        $result = $this->readSP(__FUNCTION__, "public.report_by_product('cur', to_date(:date_begin, 'dd.mm.yyyy'), to_date(:date_end, 'dd.mm.yyyy'), :product_id)", $p);
+        return $result;
+    }
+
 }

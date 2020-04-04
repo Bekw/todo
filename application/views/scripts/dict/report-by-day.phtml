@@ -1,0 +1,135 @@
+<div class="row-fluid">
+    <div class="page-header">
+        <h1>Общая сумма продаваемых продуктов за каждый день</h1>
+    </div>
+
+    <form id="form3" style="margin-bottom: 0px;">
+
+        <div class="input-group pull-left">
+            <div class="form-group pull-left margin-right-10">
+                <label class="control-label" for="date_begin">Дата начала</label>
+                <div class="input-group no-margin">
+                    <span class="input-group-addon">
+                        <i class="fa fa-calendar"></i>
+                    </span>
+                    <input class="date-picker form-control no-margin" id="date_begin" type="text" name="date_begin" value="<?=$this->date_begin?>" style="width: 80px;" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group pull-left margin-right-10">
+                <label class="control-label" for="date_end">Дата окончания</label>
+                <div class="input-group no-margin">
+                    <span class="input-group-addon">
+                        <i class="fa fa-calendar"></i>
+                    </span>
+                    <input class="date-picker form-control no-margin" id="date_end" type="text" name="date_end" value="<?=$this->date_end?>" style="width: 80px;" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group pull-left margin-right-10 without-label" style="margin-top: 25px;">
+                <button type="button" name="show" onclick="getGraphicInfo3()" class="btn btn-primary btn-sm">
+                <span class="add-on">
+                    <i class="fa fa-search"></i>
+                </span>
+                    Поиск
+                </button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </form>
+    <div class="clearfix"></div>
+    <div>
+        <div class="widget-body" style="border: 1px solid #CCC; border-top: 0; background-color: #FFF;">
+            <div class="widget-main padding-4">
+                <div id="sales-charts"></div>
+            </div><!-- /widget-main -->
+        </div><!-- /widget-body -->
+
+        <table id="sample-table-1" class="table-local table-striped table-bordered table-hover" style="margin-top: 20px;">
+            <thead>
+            <tr>
+                <th class="center" style="width: 250px;">Дата</th>
+                <th class="center" style="width: 150px;">Сумма</th>
+                <th class="center" style="width: 150px;">Количество адресов</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function(){
+        getGraphicInfo3();
+    });
+
+    function getGraphicInfo3(){
+
+        $.ajax({
+            type: 'POST',
+            url: "/dict/report-by-day/mode/get-dayly-sale-sum/",
+            data: $("#form3").serialize(),
+            success: function(data){
+                if(data.result == false){
+                    Notify.generate("За текущий месяц отсутствует сумма продаваемых продуктов", '', 3);
+                    return;
+                }
+                else{
+                    dayly_sale_products_sum = data.result;
+                    createGraphic3(dayly_sale_products_sum);
+                }
+            }
+        });
+    }
+
+    function changeDateFormat(time) {
+        var r = time.match(/^\s*([0-9]+)\s*-\s*([0-9]+)\s*-\s*([0-9]+)(.*)$/);
+        return r[3]+"-"+r[2]+"-"+r[1];
+    }
+
+    function createGraphic3(result){
+        var d1 = [];
+        result.forEach(function (et){
+            d1.push([Date.parse(et['date']), et['sum']]);
+        });
+
+        var sales_charts = $('#sales-charts').css({'width':'100%' , 'height':'220px'});
+        $.plot("#sales-charts", [
+            { label: "", data: d1 }
+        ], {
+            hoverable: true,
+            clickable: true,
+            shadowSize: 0,
+            series: {
+                lines: { show: true },
+                points: { show: true }
+            },
+            xaxis: {
+                mode: "time",
+                timeformat: "%d/%m/%y"
+            },
+            yaxis: {
+                ticks: 10,
+                min: 0,
+                max: 1000000,
+                tickDecimals: 0
+            },
+            grid: {
+                backgroundColor: { colors: [ "#fff", "#fff" ] },
+                borderWidth: 1,
+                borderColor:'#555'
+            }
+        });
+
+        table_content = "";
+        all_sum = 0;
+        var address_count = 0;
+        result.forEach(function (et){
+            table_content += "<tr><td>"+changeDateFormat(et['date'])+"</td><td>"+et['sum']+"</td><td>" + et['address_count'] +  "</td></tr>";
+            all_sum += parseInt(et['sum']);
+            address_count += parseInt(et['address_count']);
+        });
+        $("#sample-table-1").empty();
+        $("#sample-table-1").append('<thead><tr><th class="center" style="width: 250px;">Дата</th><th class="center" style="width: 250px;">Сумма</th><th class="center" style="width: 150px;">Количество адресов</th></tr></thead>');
+        $("#sample-table-1").append('<tr><th style="width: 50px; font-weight: bold;">Итого</th><th style="width: 50px; font-weight: bold;">'+ all_sum + '</th><th>' + address_count + '</th>');
+        $("#sample-table-1").append(table_content);
+    }
+</script>
