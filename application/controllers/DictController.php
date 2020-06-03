@@ -224,6 +224,12 @@ class DictController extends ParentController{
             $result = $ob->product_count_add($a['product_id'], $a['amount']);
             $this->view->result = $result;
         }
+        if($mode == 'upd-lot'){
+            $this->_helper->AjaxContext()->addActionContext('product-list', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->lot_upd_for_opt($a['product_id'], $a['amount']);
+            $this->view->result = $result;
+        }
         if($mode == 'upd-stack'){
             $this->_helper->AjaxContext()->addActionContext('product-list', 'json')->initContext('json');
             $a = $this->_getAllParams();
@@ -234,6 +240,14 @@ class DictController extends ParentController{
             $this->_helper->AjaxContext()->addActionContext('product-list', 'json')->initContext('json');
             $product_stack_id = $this->_getParam('product_stack_id', 0);
             $result = $ob->product_stack_del($product_stack_id);
+            $this->view->result = $result;
+        }
+        if($mode == 'get-opt-lot'){
+            $this->_helper->AjaxContext()->addActionContext('product-list', 'json')->initContext('json');
+            $product_id = $this->_getParam('product_id', 0);
+            $date_begin = $this->_getParam('date_begin', '');
+            $date_end = $this->_getParam('date_end', '');
+            $result = $ob->get_opt_cnt_for_lot($product_id, $date_begin, $date_end);
             $this->view->result = $result;
         }
 //        $row = $ob->product_read()['value'];
@@ -277,6 +291,14 @@ class DictController extends ParentController{
         $ob = new Application_Model_DbTable_Dict();
         $this->_helper->layout->disableLayout();
         $product_id = $this->_getParam('product_id', 0);
+        $this->view->product_id = $product_id;
+    }
+    public function productOptLotAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $this->_helper->layout->disableLayout();
+        $product_id = $this->_getParam('product_id', 0);
+        $this->view->date_begin = $this->_getParam('date_begin', '');
+        $this->view->date_end = $this->_getParam('date_end', '');
         $this->view->product_id = $product_id;
     }
     public function lotListAction(){

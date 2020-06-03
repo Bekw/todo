@@ -5,6 +5,14 @@
     </div>
     <ul class="list-unstyled spaced list-inline pull-right no-margin-bottom">
         <li class="no-margin">
+            <div class="action-buttons" title="Вычислить оптимальное количество заказа">
+                <a class="blue" href="javascript:void(0);">
+                    <i class="ace-icon fa fa-search-plus bigger-130"></i>
+                </a>
+                Вычислить ОКЗ
+            </div>
+        </li>
+        <li class="no-margin">
             <div class="action-buttons">
                 <a class="blue" href="javascript:void(0);">
                     <i class="ace-icon fa fa-plus-circle bigger-130"></i>
@@ -129,6 +137,18 @@
         $.ajax({
             type: 'POST',
             url: "/dict/product-cnt-edit/product_id/" + product_id + "/",
+            async: true,
+            success: function(data){
+                $("#modal_body").html(data);
+            }
+        });
+        $(".modal").modal('show');
+    }
+    function countOpt(product_id){
+        $("#modal_body").empty();
+        $.ajax({
+            type: 'POST',
+            url: "/dict/product-opt-lot/product_id/" + product_id + "/",
             async: true,
             success: function(data){
                 $("#modal_body").html(data);

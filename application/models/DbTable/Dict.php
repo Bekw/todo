@@ -160,10 +160,10 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
     public function product_upd($arr){
         $p['product_id_'] = $arr['product_id'];
         $p['product_name_'] = $arr['product_name'];
-        $p['category_id_'] = $arr['category_id'];
-        $p['brand_id_'] = $arr['brand_id'];
+        $p['category_id_'] = zeroToNull($arr['category_id']);
+        $p['brand_id_'] = zeroToNull($arr['brand_id']);
         $p['barcode_'] = $arr['barcode'];
-        $p['price_'] = $arr['price'];
+        $p['price_'] = zeroToNull($arr['price']);
         $result = $this->execSP(__FUNCTION__, "public.product_upd(:product_id_, :product_name_, :category_id_, :brand_id_, :barcode_, :price_)", $p);
         return $result;
     }
@@ -251,6 +251,15 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $result = $this->execSP(__FUNCTION__, "public.lot_upd(:lot_id, :product_id, :amount, :lot_date, :employee_id)", $p);
         return $result;
     }
+    public function lot_upd_for_opt($product_id, $amount){
+        $p['lot_id'] = 0;
+        $p['product_id'] = $product_id;
+        $p['amount'] = $amount;
+        $p['lot_date'] = date("d.m.Y");
+        $p['employee_id'] = getCurEmployee();
+        $result = $this->execSP(__FUNCTION__, "public.lot_upd(:lot_id, :product_id, :amount, :lot_date, :employee_id)", $p);
+        return $result;
+    }
     public function product_for_select_get($product_name){
         $p['product_name'] = $product_name;
         $result = $this->readSP(__FUNCTION__, "public.product_for_select_get('cur', :product_name)", $p);
@@ -279,12 +288,12 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $p['request_id'] = $a['request_id'];
         $p['address'] = $a['address'];
         $p['employee_id'] = getCurEmployee();
-        $p['courier_id'] = $a['courier_id'];
-        $p['request_date'] = $a['request_date'];
+        $p['courier_id'] = zeroToNull($a['courier_id']);
+        $p['request_date'] = zeroToNull($a['request_date']);
         $p['status_id'] = 1;
         $p['comment'] = $a['comment'];
         $p['telephone'] = $a['telephone'];
-        $p['sum'] = $a['sum'];
+        $p['sum'] = zeroToNull($a['sum']);
         $result = $this->execSP(__FUNCTION__, "public.request_upd(:request_id, :address, :employee_id, :courier_id, :request_date, :status_id, :comment, :telephone, :sum) res", $p, 'res');
         if(isset($a['request_product_id'])){
             foreach ($a['request_product_id'] as $key => $value){
@@ -360,6 +369,13 @@ class Application_Model_DbTable_Dict extends Application_Model_DbTable_Parent{
         $p['date_end'] = $date_end;
         $p['product_id'] = $product_id;
         $result = $this->readSP(__FUNCTION__, "public.report_by_product('cur', to_date(:date_begin, 'dd.mm.yyyy'), to_date(:date_end, 'dd.mm.yyyy'), :product_id)", $p);
+        return $result;
+    }
+    public function get_opt_cnt_for_lot($product_id, $date_begin, $date_end){
+        $p['date_begin'] = $date_begin;
+        $p['date_end'] = $date_end;
+        $p['product_id'] = $product_id;
+        $result = $this->scalarSP(__FUNCTION__, "public.get_opt_cnt_for_lot(:product_id, to_date(:date_begin, 'dd.mm.yyyy'), to_date(:date_end, 'dd.mm.yyyy')) res", $p, "res");
         return $result;
     }
 

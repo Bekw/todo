@@ -51,6 +51,15 @@
     <div class="clearfix"></div>
 </div>
 <div class="clearfix"></div>
+
+<?php if(isset($this->error)){ ?>
+
+    <div class="alert alert-danger">
+        <p><?=$this->error?></p>
+    </div>
+
+<?}?>
+<div class="clearfix"></div>
 <form method="post" id="form_id">
     <input type="hidden" value="<?=$this->request_id?>" name="request_id">
     <input type="hidden" value="<?=$this->status_id?>" id="status_id" name="status">

@@ -2,6 +2,15 @@
     <h1 class="pull-left">Редактирование лота</h1>
     <div class="clearfix"></div>
 </div>
+
+<?php if(isset($this->error)){ ?>
+
+    <div class="alert alert-danger">
+        <p><?=$this->error?></p>
+    </div>
+
+<?}?>
+<div class="clearfix"></div>
 <div class="clearfix"></div>
 <form method="post" id="form_id">
     <input type="hidden" value="<?=$this->lot_id?>" name="lot_id">

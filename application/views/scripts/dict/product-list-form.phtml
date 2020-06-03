@@ -11,6 +11,7 @@
             <th>Бренд</th>
             <th></th>
             <th></th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -27,11 +28,19 @@
                     <td class="text-left"><?=$value['brand_name']?></td>
                     <td>
                         <div class="text-center">
+                            <a class="blue" href="javascript:void(0);" onclick="countOpt(<?=$value['product_id']?>, this)">
+                                <i class="ace-icon fa fa-search-plus bigger-130"></i>
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-center">
                             <a class="blue" href="javascript:void(0);" onclick="addCnt(<?=$value['product_id']?>, this)">
                                 <i class="ace-icon fa fa-plus-circle bigger-130"></i>
                             </a>
                         </div>
-                    </td><td>
+                    </td>
+                    <td>
                         <div class="text-center">
                             <a class="red" href="javascript:void(0);" onclick="delProduct(<?=$value['product_id']?>, this)">
                                 <i class="ace-icon fa fa-trash-o bigger-130"></i>
