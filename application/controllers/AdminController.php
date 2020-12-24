@@ -1917,19 +1917,6 @@ class AdminController extends Zend_Controller_Action
         $row = $admin->getBrands();
         echo $this->view->partialLoop('/admin/brand-block.phtml', $row);
     }
-    public function getProductListAction(){
-        if ($this->getRequest()->isXmlHttpRequest()){
-            $this->_helper->layout->disableLayout();
-        }
-        $this->_helper->viewRenderer->setNoRender(TRUE);
-        $admin = new Application_Model_DbTable_Admin();
-        $allparam = $this->_getAllParams();
-        $row = $admin->searchProductByParam($allparam);
-        for($i = 0; $i < count($row); $i++){
-            $row[$i]['city_id2'] = $allparam['city_id2'];
-        }
-        echo $this->view->partialLoop('/admin/get-product-list.phtml', $row);
-    }
     public function productTypeEditAction(){
         $this->_helper->layout->disableLayout();
     }

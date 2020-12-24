@@ -545,4 +545,5 @@ class Application_Model_DbTable_System extends Application_Model_DbTable_Parent{
         $result = $this->readSP(__FUNCTION__, "shop_main.device_read('cur')");
         return $result;
     }
+
 }

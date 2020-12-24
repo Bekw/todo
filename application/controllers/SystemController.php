@@ -182,6 +182,7 @@ class SystemController extends ParentController{
     public function blankAction(){
     }
 
+
     private function login($login, $password, $finger, $code_key){
         $authAdapter = new Zend_Auth_Adapter_DbTable(Zend_Db_Table::getDefaultAdapter());
         $authAdapter->setTableName('admin.employee_view');
@@ -252,6 +253,7 @@ class SystemController extends ParentController{
     }
 
     public function indexAction(){
+        $ob = new Application_Model_DbTable_System();
 
     }
 
@@ -347,5 +349,8 @@ class SystemController extends ParentController{
             $this->view->success_password_change = 1;
         }
     }
+
+
+
 }
 
