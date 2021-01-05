@@ -21,7 +21,8 @@ class DictController extends ParentController{
         $action_name =  (Zend_Controller_Front::getInstance()->getRequest()->getActionName());
         $actions_except = array('login',
                                 'send-mail',
-                                'check-mail');
+                                'check-mail',
+                                'index');
         if (!in_array($action_name, $actions_except)){
             if (!(new Zend_SystemAuth())::getInstance()->setStorage(new Zend_Auth_Storage_Session('system_auth'))->hasIdentity()){
                 $this->_redirect('/system/login');
@@ -52,6 +53,12 @@ class DictController extends ParentController{
             $this->view->result = $result;
         }
     }
+
+    public function indexAction(){
+        $this->_helper->layout->disableLayout();
+
+    }
+
     public function requestTypeListAction(){
         $ob = new Application_Model_DbTable_Dict();
         $mode = $this->_getParam('mode', '');
@@ -79,19 +86,17 @@ class DictController extends ParentController{
     }
     public function requestTypeEditAction(){
         $ob = new Application_Model_DbTable_Dict();
-        $request_type_id = $this->_getParam('request_type_id', 0);
+        $this->view->request_type_id = $this->_getParam('request_type_id', 0);
+        $mode = $this->_getParam('mode', '');
 
-        if($this->getRequest()->isPost()) {
+        if($mode == "upd"){
+            $this->_helper->AjaxContext()->addActionContext('request-type-edit', 'json')->initContext('json');
             $a = $this->_getAllParams();
             $result = $ob->upd_request_type($a);
-            if ($result['status'] == false) {
-                $this->view->error = $result['error'];
-                $this->view->row = $a;
-            }else{
-                $this->_redirector->gotoUrl('/dict/request-type-list/');
-            }
+            $this->view->result = $result;
         }
-        $row = $ob->get_request_type($request_type_id)['value'];
+
+        $row = $ob->get_request_type($this->view->request_type_id)['value'];
         $this->view->row = $row;
         $this->view->request_type_list = $ob->read_request_type_list()['value'];
     }
@@ -99,6 +104,40 @@ class DictController extends ParentController{
         $ob = new Application_Model_DbTable_Dict();
         $row = $ob->read_request()['value'];
         $this->view->row = $row;
+    }
+    public function requestNfListAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $row = $ob->read_request_nf()['value'];
+        $this->view->row = $row;
+    }
+    public function chatAction(){
+        $ob = new Application_Model_DbTable_Dict();
+        $mode = $this->_getParam('mode', '');
+
+        if($mode == "send_massage"){
+            $this->_helper->AjaxContext()->addActionContext('chat', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->send_message($a['request_type_id'], $a['token']);
+            $this->view->result = $result;
+        }
+        if($mode == "send_massage_nf"){
+            $this->_helper->AjaxContext()->addActionContext('chat', 'json')->initContext('json');
+            $a = $this->_getAllParams();
+            $result = $ob->send_message_nf($a['request_type_id'], $a['token'], $a['message']);
+            $this->view->result = $result;
+        }
+    }
+    public function chatListAction(){
+        $this->_helper->layout->disableLayout();
+        $ob = new Application_Model_DbTable_Dict();
+        $token = $this->_getParam('token', '');
+        $this->view->row = $ob->read_request_by_token($token)['value'];
+    }
+    public function buttonListAction(){
+        $this->_helper->layout->disableLayout();
+        $ob = new Application_Model_DbTable_Dict();
+        $request_type_id = $this->_getParam('request_type_id', 0);
+        $this->view->row = $ob->read_request_buttons($request_type_id)['value'];
     }
 }
 
