@@ -1,0 +1,100 @@
+<?
+    $token = sha1(mt_rand(1, 90000) . 'SALT');
+?>
+<div class="col-sm-6" >
+    <input type="hidden" name="token" id="token" value="<?=$token?>">
+    <div class="widget-box">
+        <div class="widget-header">
+            <h4 class="widget-title lighter smaller">
+                <i class="ace-icon fa fa-comment blue"></i>
+                Chat-Bot v.1
+            </h4>
+            <div class="widget-toolbar no-border">
+                <a href="javascript:void(0)" onclick="loadButton(100)" data-action="reload">
+                    <i class="ace-icon fa fa-refresh"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main no-padding">
+                <div class="dialogs ace-scroll">
+
+                    <div class="scroll-content"  id="chat_list">
+
+                    </div>
+                </div>
+
+
+                    <div class="form-actions" style="margin-bottom: 0px;margin-top: 0px; padding: 10px 10px 10px;">
+                        <div id="buttons">
+
+                        </div>
+                        <form id="message_form">
+                            <div class="input-group">
+                                <input placeholder="Напишите здесь если не нашли раздел..." type="text" class="form-control" name="message" id="message">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-sm btn-info no-radius" type="button" onclick="send_message_nf()">
+                                    <i class="ace-icon fa fa-share"></i>
+                                    Отправить
+                                </button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+            </div><!-- /.widget-main -->
+        </div><!-- /.widget-body -->
+    </div><!-- /.widget-box -->
+</div>
+<script>
+    var token = $("#token").val();
+    $(document).ready(function() {
+        chatListLoad(token);
+        loadButton(0);
+    });
+
+    function chatListLoad(token){
+        $.ajax({
+            type: 'POST',
+            async: true,
+            url: "/dict/chat-list/token/" + token + "/",
+            success: function(data){
+                $('#chat_list').html(data);
+            }
+        });
+    }
+    function loadButton(request_type_id){
+        $.ajax({
+            type: 'POST',
+            async: true,
+            url: "/dict/button-list/request_type_id/" + request_type_id + "/",
+            success: function(data){
+                send_message(request_type_id);
+                $('#buttons').html(data);
+            }
+        });
+    }
+    function send_message(request_type_id){
+        $.ajax({
+            type: 'POST',
+            async: true,
+            url: "/dict/chat/mode/send_massage/request_type_id/" + request_type_id + "/token/" + token +"/",
+            success: function(data){
+                chatListLoad(token);
+            }
+        });
+    }
+    function send_message_nf(){
+        $.ajax({
+            type: 'POST',
+            async: true,
+            data: $("#message_form").serializeArray(),
+            url: "/dict/chat/mode/send_massage_nf/request_type_id/" + 300 + "/token/" + token +"/",
+            success: function(data){
+                chatListLoad(token);
+                Notify.generate('Успех', '', 1);
+                $("#message").val('');
+            }
+        });
+    }
+</script>

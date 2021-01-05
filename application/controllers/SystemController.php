@@ -204,13 +204,7 @@ class SystemController extends ParentController{
                 return 'blocked';
             }
             $ob = new Application_Model_DbTable_System();
-            if ($login != 'admin') {
-                $is_allow = $ob->device_check($identity->email, $finger, $code_key)['value'];
-                if ($is_allow == 0) {
-                    (new Zend_SystemAuth())::getInstance()->setStorage(new Zend_Auth_Storage_Session('system_auth'))->clearIdentity();
-                    return 'disallow';
-                }
-            }
+
             return 'valid';
         }
         else{
@@ -243,9 +237,6 @@ class SystemController extends ParentController{
                 }
             } else if($validate == 'blocked'){
                 $this->view->error = "Пользватель заблокирован";
-            } else if($validate == 'disallow'){
-                $this->view->error = "Устройство пользователя не зарегистрировано";
-                $this->view->show_code_key = 1;
             } else{
                 $this->view->error = "Неверный логин или пароль";
             }

@@ -1,0 +1,26 @@
+<?foreach ($this->row as $key => $value){?>
+    <div class="itemdiv dialogdiv">
+        <div class="user">
+        </div>
+
+        <div class="body">
+            <div class="time">
+                <i class="ace-icon fa fa-clock-o"></i>
+                <span class="green"><?=$value['rowversion']?></span>
+            </div>
+
+            <div class="name">
+                <a href="#"><?=$value['fio']?></a>
+            </div>
+            <div class="text">
+                <?=$value['request_answer']?>
+                <?if(isset($value['request_href'])){?>
+                    <br>
+                    <a href="<?=$value['request_href']?>" target="_blank"><?=$value['request_name']?></a>
+                    <?
+                }?>
+            </div>
+        </div>
+    </div>
+    <?
+}?>

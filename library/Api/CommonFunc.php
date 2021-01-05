@@ -14,6 +14,24 @@
             return $param;
         }
     }
+
+    function move_uploaded_file_smart($tmpFile, $newFile){
+        /*
+        $str = $_SERVER['DOCUMENT_ROOT'].'/documents/';
+        if (strpos($newFile, $str) !== false){
+            $newFile = str_replace($str, $str . date('Y.m.d').'/', $newFile);
+        }*/
+        $path_parts = pathinfo($newFile);
+        if (!file_exists($path_parts['dirname'])) {
+            mkdir($path_parts['dirname'], 0777, true);
+        }
+        if(move_uploaded_file($tmpFile, $newFile)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
     function getHttpHost(){
         if(isset($_SERVER['HTTPS'])){
             $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";

@@ -48,7 +48,22 @@
         </div>
         <div class="clearfix"></div>
 
-        <button type="submit" style="margin-left: 5px;" class="btn btn-success pull-right">Сохранить</button>
+        <div class="form-group">
+            <label class="control-label " for="message_text">Текст сообщения</label>
+            <textarea class="form-control" name="message_text" style="height: 100px; overflow: hidden; overflow-wrap: break-word; resize: horizontal;" id="message_text" placeholder="Текст сообщения"><?=$this->row['message_text']?></textarea>
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label " for="upload">Файл</label>
+            <a href="<?=$value['doc_url']?>" target="_blank"><?=$value['doc_name']?></a>
+            <div class="form-control no-padding">
+                <input type="file" name="request_document" id="request_document">
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        <button type="button" onclick="upd()" style="margin-left: 5px;" class="btn btn-success pull-right">Сохранить</button>
 
         <a href="/dict/request-type-list/">
             <button type="button" class="btn btn-danger pull-right">Назад</button>
@@ -61,6 +76,27 @@
     $(document).ready(function() {
 
     });
+    function upd(){
+        var fd = new FormData($("#form_id")[0]);
+        $.ajax({
+            type: 'POST',
+            url: "/dict/request-type-edit/mode/upd/",
+            data: fd,
+            success: function(data){
+                if(data.result['status'] == false){
+                    Notify.generate('Ошибка', '', 3);
+                    alert(data.result['error']);
+                }else{
+                    Notify.generate('Успех', '', 1);
+                    // document.location.reload();
+                    window.location='/dict/request-type-list/'
+                }
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    }
 
 
 </script>
